@@ -70,7 +70,6 @@ def extract_title(html_text: str, fallback_filename: str) -> str:
 
 
 def strip_embedded_styling(html_text: str) -> str:
-    # Remove all embedded style blocks
     html_text = re.sub(
         r"<style\b[^>]*>.*?</style>",
         "",
@@ -78,7 +77,6 @@ def strip_embedded_styling(html_text: str) -> str:
         flags=re.IGNORECASE | re.DOTALL,
     )
 
-    # Remove existing stylesheet links
     html_text = re.sub(
         r'<link\b[^>]*rel=["\']?stylesheet["\']?[^>]*>',
         "",
@@ -86,7 +84,6 @@ def strip_embedded_styling(html_text: str) -> str:
         flags=re.IGNORECASE,
     )
 
-    # Remove inline style attributes
     html_text = re.sub(
         r'\sstyle\s*=\s*(".*?"|\'.*?\'|[^\s>]+)',
         "",
@@ -94,10 +91,94 @@ def strip_embedded_styling(html_text: str) -> str:
         flags=re.IGNORECASE | re.DOTALL,
     )
 
-    # Remove old-school presentational attributes
     for attr in ["bgcolor", "text", "link", "vlink", "alink"]:
         html_text = re.sub(
             rf'\s{attr}\s*=\s*(".*?"|\'.*?\'|[^\s>]+)',
+            "",
+            html_text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+
+    return html_text
+
+
+def strip_evernote_checklists(html_text: str) -> str:
+    # Remove Evernote todo custom elements if present
+    html_text = re.sub(
+        r"<en-todo\b[^>]*>\s*</en-todo>",
+        "",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    html_text = re.sub(
+        r"<en-todo\b[^>]*/>",
+        "",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    # Remove checkbox inputs
+    html_text = re.sub(
+        r"<input\b[^>]*type\s*=\s*['\"]checkbox['\"][^>]*>",
+        "",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    # Remove container div that only exists to hold checklist bullets
+    html_text = re.sub(
+        r'<div\b[^>]*class\s*=\s*["\'][^"\']*\blist-bullet-todo-container\b[^"\']*["\'][^>]*>\s*</div>',
+        "",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    # Unwrap list-content wrapper but keep its inner HTML
+    html_text = re.sub(
+        r'<div\b([^>]*)class\s*=\s*["\'][^"\']*\blist-content\b[^"\']*["\']([^>]*)>',
+        "<div>",
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    # Remove checklist-related attributes
+    for attr in ["data-checked", "aria-checked", "contenteditable", "draggable", "tabindex"]:
+        html_text = re.sub(
+            rf'\s{attr}\s*=\s*(".*?"|\'.*?\'|[^\s>]+)',
+            "",
+            html_text,
+            flags=re.IGNORECASE | re.DOTALL,
+        )
+
+    # Remove Evernote checklist classes while keeping other classes intact
+    def strip_classes(match: re.Match[str]) -> str:
+        value = match.group(2)
+        classes = [c for c in re.split(r"\s+", value.strip()) if c]
+        classes = [
+            c for c in classes
+            if c not in {
+                "list-bullet-todo-container",
+                "list-bullet-todo",
+                "list-content",
+            }
+        ]
+        if classes:
+            return f' class="{" ".join(classes)}"'
+        return ""
+
+    html_text = re.sub(
+        r'(\sclass\s*=\s*["\'])([^"\']*)(["\'])',
+        strip_classes,
+        html_text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    # Remove empty divs left behind by checklist cleanup
+    previous = None
+    while previous != html_text:
+        previous = html_text
+        html_text = re.sub(
+            r"<div>\s*</div>",
             "",
             html_text,
             flags=re.IGNORECASE | re.DOTALL,
@@ -152,6 +233,7 @@ def unique_output_name(target_name: str, used_names: set[str]) -> str:
 def write_output_file(source_path: Path, output_name: str) -> dict:
     original_html = source_path.read_text(encoding="utf-8", errors="ignore")
     processed_html = strip_embedded_styling(original_html)
+    processed_html = strip_evernote_checklists(processed_html)
     processed_html = inject_stylesheet(processed_html)
     processed_html = ensure_marker(processed_html)
 
