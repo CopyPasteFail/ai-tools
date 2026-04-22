@@ -71,6 +71,12 @@ def test_generator_preserves_static_urls_and_adds_devbrain_shell(isolated_site):
     assert '<summary class="mobile-docs-summary">' in article
     assert 'href="../assets/style.css"' in article
     assert 'src="../assets/site.js"' in article
+    assert "devbrain-theme" in article
+    assert "data-theme-toggle" in article
+    assert ">API<" not in article
+    assert ">Changelog<" not in article
+    assert ">Community<" not in article
+    assert ">GitHub<" not in article
     assert 'href="execution-tools.html" class="tree-link is-active"' in article
     assert 'href="#runtime-choices"' in article
     assert "Operational notes" in article
@@ -84,6 +90,11 @@ def test_homepage_contains_lightweight_search_index_and_deterministic_sections(i
 
     homepage = (isolated_site / "index.html").read_text(encoding="utf-8")
     assert "DevBrain" in homepage
+    assert "devbrain-theme" in homepage
+    assert ">API<" not in homepage
+    assert ">Changelog<" not in homepage
+    assert ">Community<" not in homepage
+    assert ">GitHub<" not in homepage
     assert 'data-search-input' in homepage
     assert 'data-search-item data-title="Execution Tools"' in homepage
     assert 'href="ai/execution-tools.html"' in homepage

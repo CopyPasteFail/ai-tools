@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DevOps Screening Cheat-sheet · DevBrain</title>
     <meta name="color-scheme" content="dark light">
+    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="../assets/style.css">
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="../assets/site.webmanifest">
@@ -17,15 +30,8 @@
         <span class="brand-mark">DB</span>
         <span>DevBrain</span>
       </a>
-      <nav class="top-nav" aria-label="Primary navigation">
-        <a href="../index.html">Docs</a>
-        <a href="../index.html#api">API</a>
-        <a href="../index.html#changelog">Changelog</a>
-        <a href="../index.html#community">Community</a>
-      </nav>
       <div class="header-actions">
-        <a class="icon-button" href="https://github.com/" aria-label="Open GitHub">GitHub</a>
-        <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
       </div>
     </header>
     <main class="docs-layout">

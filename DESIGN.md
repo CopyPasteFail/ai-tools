@@ -66,11 +66,15 @@ Each article is wrapped in a docs-style shell:
 
 The generator removes a duplicate first `h1` when it matches the article title, because the shell renders the title in a consistent article header.
 
+## Theme Behavior
+
+The site is dark-first, but ships a real light theme. A small inline head script applies the saved theme before CSS loads; if no saved preference exists, it follows `prefers-color-scheme`. The deferred `assets/site.js` keeps the toggle state current and persists manual changes in `localStorage`.
+
 ## JavaScript Boundaries
 
 `assets/site.js` is dependency-free and defensive. It only enhances already-usable static HTML:
 
-- Theme toggle with `localStorage`
+- Theme toggle with `localStorage` and system-preference fallback
 - Text filtering for homepage and category pages
 - Copy buttons for code blocks
 - Active table-of-contents highlighting with `IntersectionObserver`

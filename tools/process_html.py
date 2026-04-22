@@ -321,6 +321,19 @@ def build_head_assets(prefix: str) -> str:
     return "\n".join(
         [
             '    <meta name="color-scheme" content="dark light">',
+            """    <script>
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("devbrain-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>""",
             f'    <link rel="stylesheet" href="{prefix}assets/style.css">',
             f'    <link rel="icon" href="{prefix}assets/favicon.svg" type="image/svg+xml">',
             f'    <link rel="manifest" href="{prefix}assets/site.webmanifest">',
@@ -429,15 +442,8 @@ def render_header(prefix: str) -> str:
         <span class="brand-mark">DB</span>
         <span>DevBrain</span>
       </a>
-      <nav class="top-nav" aria-label="Primary navigation">
-        <a href="{prefix}index.html">Docs</a>
-        <a href="{prefix}index.html#api">API</a>
-        <a href="{prefix}index.html#changelog">Changelog</a>
-        <a href="{prefix}index.html#community">Community</a>
-      </nav>
       <div class="header-actions">
-        <a class="icon-button" href="https://github.com/" aria-label="Open GitHub">GitHub</a>
-        <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Toggle theme">Theme</button>
       </div>
     </header>"""
 
