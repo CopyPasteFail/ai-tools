@@ -2,4 +2,17 @@
 set -eu
 
 repo_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-exec python "$repo_root/scripts/run_pre_push_checks.py"
+
+if [ -x "$repo_root/.venv/Scripts/python.exe" ]; then
+  python_cmd="$repo_root/.venv/Scripts/python.exe"
+elif [ -x "$repo_root/.venv/bin/python" ]; then
+  python_cmd="$repo_root/.venv/bin/python"
+else
+  echo "Missing repo virtualenv: .venv" >&2
+  echo "Create it with:" >&2
+  echo "  py -3 -m venv .venv" >&2
+  echo "  .\\.venv\\Scripts\\python.exe -m pip install -r requirements-dev.txt" >&2
+  exit 1
+fi
+
+exec "$python_cmd" "$repo_root/scripts/run_pre_push_checks.py"
