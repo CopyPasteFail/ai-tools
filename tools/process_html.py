@@ -667,7 +667,7 @@ def write_output_file(source_path: Path, output_path: Path, depth: int) -> Artic
     processed_html = remove_empty_wrappers(processed_html)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(processed_html, encoding="utf-8")
+    output_path.write_text(processed_html, encoding="utf-8", newline="\n")
 
     title = extract_title(processed_html, output_path.name)
 
@@ -743,7 +743,7 @@ def generate_section_index(
     </main>"""
     page = render_page(section_title, "../", "section-page", page_body)
     section_dir.mkdir(parents=True, exist_ok=True)
-    (section_dir / "index.html").write_text(page, encoding="utf-8")
+    (section_dir / "index.html").write_text(page, encoding="utf-8", newline="\n")
 
 
 def generate_root_index(grouped_entries: dict[str, list[ArticleEntry]]) -> None:
@@ -808,13 +808,13 @@ def generate_root_index(grouped_entries: dict[str, list[ArticleEntry]]) -> None:
     </main>"""
 
     page = render_page("DevBrain Knowledge Base", "", "home-page", page_body)
-    (OUTPUT_DIR / "index.html").write_text(page, encoding="utf-8")
+    (OUTPUT_DIR / "index.html").write_text(page, encoding="utf-8", newline="\n")
 
 
 def main() -> None:
     SOURCE_DIR.mkdir(exist_ok=True)
     OUTPUT_DIR.mkdir(exist_ok=True)
-    (OUTPUT_DIR / ".nojekyll").write_text("", encoding="utf-8")
+    (OUTPUT_DIR / ".nojekyll").write_text("", encoding="utf-8", newline="\n")
 
     copy_assets_directory()
 
@@ -861,6 +861,7 @@ def main() -> None:
         entry["output_path"].write_text(
             render_article_page(entry, grouped_entries, all_entries),
             encoding="utf-8",
+            newline="\n",
         )
 
     expected_paths = {
